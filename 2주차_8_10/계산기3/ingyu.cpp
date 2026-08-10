@@ -1,96 +1,95 @@
-#include <iostream>
 #include <string>
+#include <vector>
+#include <sstream>
+#include <iostream>
+#include <tuple>
+#include <cstring>
+#include <algorithm>
+#include <queue>
 #include <stack>
-
+#include <unordered_map>
 using namespace std;
-
-// 스택 내부에서의 연산자 우선순위 (in-stack priority)
-int get_isp(char op) {
-    if (op == '*') return 2;
-    if (op == '+') return 1;
-    if (op == '(') return 0;
-    return -1;
-}
-
-// 스택으로 들어갈 때의 연산자 우선순위 (incoming priority)
-int get_icp(char op) {
-    if (op == '*') return 2;
-    if (op == '+') return 1;
-    if (op == '(') return 3; // 여는 괄호는 들어갈 때 우선순위가 가장 높음
-    return -1;
-}
-
+unordered_map<char, int> dic;
 int main() {
-    // 입출력 속도 향상
-    ios_base::sync_with_stdio(false);
-    cin.tie(NULL);
 
-    // 총 10개의 테스트 케이스 처리
-    for (int t = 1; t <= 10; ++t) {
-        int len;
-        string infix;
-        cin >> len >> infix;
-
-        string postfix = "";
-        stack<char> opStack;
-
-        // 1. 중위 표기식을 후위 표기식으로 변환
-        for (int i = 0; i < len; i++) {
-            char ch = infix[i];
-
-            // 피연산자(숫자)인 경우 그대로 결과 문자열에 추가
-            if (ch >= '0' && ch <= '9') {
-                postfix += ch;
-            } 
-            // 닫는 괄호인 경우 여는 괄호가 나올 때까지 pop
-            else if (ch == ')') {
-                while (!opStack.empty() && opStack.top() != '(') {
-                    postfix += opStack.top();
-                    opStack.pop();
-                }
-                if (!opStack.empty()) opStack.pop(); // '(' 제거
-            } 
-            // 연산자(+, *) 또는 여는 괄호('(')인 경우
-            else {
-                while (!opStack.empty() && get_isp(opStack.top()) >= get_icp(ch)) {
-                    postfix += opStack.top();
-                    opStack.pop();
-                }
-                opStack.push(ch);
-            }
-        }
-        
-        // 스택에 남은 연산자들 모두 처리
-        while (!opStack.empty()) {
-            postfix += opStack.top();
-            opStack.pop();
-        }
-
-        // 2. 후위 표기식 계산
-        stack<long long> valStack; // 곱셈 과정에서 값이 커질 수 있으므로 안전하게 long long 사용
-        for (int i = 0; i < postfix.length(); i++) {
-            char ch = postfix[i];
-
-            // 피연산자(숫자)인 경우 스택에 push
-            if (ch >= '0' && ch <= '9') {
-                valStack.push(ch - '0');
-            } 
-            // 연산자인 경우 스택에서 두 개의 값을 꺼내어 계산
-            else {
-                long long b = valStack.top(); valStack.pop();
-                long long a = valStack.top(); valStack.pop();
-
-                if (ch == '+') {
-                    valStack.push(a + b);
-                } else if (ch == '*') {
-                    valStack.push(a * b);
-                }
-            }
-        }
-
-        // 결과 출력
-        cout << "#" << t << " " << valStack.top() << "\n";
-    }
-
-    return 0;
+	dic['+'] = 0; // 연산기호 우선순위
+	dic['*'] = 1; // 숫자가 높을수록 우선순위가 높음 
+	for (int i = 1; i <= 10; i++) {
+		int n;
+		cin >> n;
+		string midfix; // 중위표기식
+		cin >> midfix; 
+		int midfix_len = midfix.length();
+		stack<char> opStack;
+		string postfix; // 후위표기식
+		// 1. 중위 -> 후위 표기식
+		for (int j = 0; j < midfix_len; j++) {
+			char ch = midfix[j]; // 현재 추가되는 문자(기호, 숫자)
+			if (ch >= '0' && ch <= '9') { // 숫자라면
+				postfix += ch; // 그냥 후위표기식에 바로 추가해준다.
+			}
+			else if (ch == '(') {
+				opStack.push(ch);
+			}
+			else if (ch == ')') {
+				while (!opStack.empty() && opStack.top() != '(') {
+					char top = opStack.top();
+					postfix += top;
+					opStack.pop();
+				}
+				if (!opStack.empty() && opStack.top() == '(') {
+					opStack.pop(); // 여는 괄호를 삭제하여 벽을 허문다.
+				}
+			}
+			else { // 그 외 연산기호 +, *
+				while (!opStack.empty() && opStack.top() != '(' && opStack.top() != ')' && dic[opStack.top()] >= dic[ch]) { // 즉, 기존의 연산기호의 우선순위가 새로 추가되는 기호보다 높을때
+					char top = opStack.top();
+					postfix += top;
+					opStack.pop();
+				}
+				opStack.push(ch); // 위의 결과가 어떻던 항상 opStack에 추가해줘야 한다.
+			}
+		}
+		// 마저 찌꺼기 기호 처리
+		while (!opStack.empty()) { // 즉, 기존의 연산기호의 우선순위가 새로 추가되는 기호보다 높을때
+			char top = opStack.top();
+			postfix += top;
+			opStack.pop();
+		}
+		// cout << "postfix:" << postfix << endl;
+		// 2. 후위 표기식 -> 실제 연산
+		int post_len = postfix.length();
+		// cout << post_len << endl;
+		stack<int> cal_stack;
+		for (int j = 0; j < post_len; j++) {
+			char ch = postfix[j];
+			// cout << ch << endl;
+			if (ch >= '0' && ch <= '9') {
+				int new_int = ch - '0';
+				cal_stack.push(new_int);
+				// cout << new_int << "가 추가됨" << endl;
+			}
+			else {
+				int digit1 = cal_stack.top();
+				cal_stack.pop();
+				int digit2 = cal_stack.top();
+				cal_stack.pop();
+				// cout << digit1 << "," << digit2 << "가 pop되고" << endl;
+				if (ch == '+') {
+					int new_int = digit1 + digit2;
+					cal_stack.push(new_int);
+					// cout << new_int << "가 추가됨" << endl;
+				}
+				else {
+					int new_int = digit1 * digit2;
+					cal_stack.push(new_int);
+					// cout << digit1 * digit2 << "곱" << endl;
+					// cout << new_int << "가 추가됨" << endl;
+				}
+			}
+		}
+		int ans = cal_stack.top();
+		cout << "#" << i << " " << ans << endl;
+	}
+	return 0;
 }
