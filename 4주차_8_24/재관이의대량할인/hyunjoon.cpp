@@ -32,6 +32,7 @@ int main(int argc, char** argv)
 		
 		for (int i = 0; i <= N / 3; i++) {
 			for (int j = i*3; j < i*3+2; j++) {
+                if(j>=N) break;
 				ans += cloth[j];
 			}
 		}
