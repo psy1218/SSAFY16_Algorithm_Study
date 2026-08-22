@@ -1,55 +1,35 @@
 #include <string>
 #include <vector>
-#include <deque>
-#include <utility>
-
+#include <queue>
 using namespace std;
 
 int solution(vector<int> priorities, int location) {
     int answer = 0;
-
-    deque<pair<int, int>> q;
-    vector<pair<int, int>> result;
-
-    for (int i = 0; i < priorities.size(); i++) {
-        q.push_back({priorities[i], i});
+    queue<pair<int, int>> q;
+    priority_queue<pair<int, int>> pq;
+    int q_len = priorities.size();
+    for (int i = 0; i < q_len; i++){
+        q.push({priorities[i], i});
+        pq.push({priorities[i], i});
     }
-
-    while (!q.empty()) {
-        int cur_prior = q.front().first;
-        int cur_idx = q.front().second;
-        q.pop_front();
-
-        bool flag = false;
-
-        for (auto i : q) {
-            int prior = i.first;
-            int idx = i.second;
-
-            // 더 우선순위가 큰 프로세스가 있다면
-            if (cur_prior < prior) {
-                flag = true;
+    int seq = 0; // pop될때마다 1씩 증가. 즉, pop된 요소의 인덱스
+    while (!q.empty()){
+        int cur_pq_top = pq.top().first;
+        int cur_q_front = q.front().first;
+        if (cur_pq_top == cur_q_front){
+            seq++;
+            if (q.front().second == location){ // 찾고자 하는 위치라면
+                answer = seq;
                 break;
             }
+            pq.pop();
+            q.pop();
         }
-
-        if (flag) {
-            q.push_back({cur_prior, cur_idx});
-        }
-        else {
-            // 우선순위가 더 큰게 없다면 실행
-            result.push_back({cur_prior, cur_idx});
-        }
-    }
-
-    for (int i = 0; i < result.size(); i++) {
-        int cur_idx = result[i].second;
-
-        if (cur_idx == location) {
-            answer = i + 1;
-            break;
+        else{
+            pair<int, int> tmp = q.front();
+            q.pop();
+            q.push(tmp);
         }
     }
-
     return answer;
 }
