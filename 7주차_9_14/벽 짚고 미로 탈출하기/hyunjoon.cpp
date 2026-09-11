@@ -14,20 +14,8 @@ bool visited[101][101][4];
 int dr[4] = {0,-1,0,1};
 int dc[4] = {1,0,-1,0};
 
-
-struct player{
-    int r,c,dir;
-}typedef player_t;
-
-player_t player;
-
 bool check_edge(int r, int c){
     if(r>0 && r<=N && c>0 && c<=N) return true;
-    else return false;
-}
-
-bool check_esc(int r, int c){
-    if(r>N || r<=0 || c>N || c<=0) return true;
     else return false;
 }
 
