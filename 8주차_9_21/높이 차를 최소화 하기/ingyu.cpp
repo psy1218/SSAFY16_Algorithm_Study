@@ -1,67 +1,73 @@
 #include <iostream>
 #include <queue>
-#include <algorithm>
+#include <vector>
+#include <cstring>
 using namespace std;
 
 int n, m;
-int board[101][101];
-
-int dx[4] = {-1, 1, 0, 0};
-int dy[4] = {0, 0, -1, 1};
-
-bool bfs(int low, int high) {
-    // 시작점과 도착점부터 범위 안에 있어야 함
-    if (board[0][0] < low || board[0][0] > high)
+int board[100][100];
+int dxdy[4][2] = { {-1, 0}, {0, -1}, {1, 0}, {0, 1} };
+struct pos {
+    int x;
+    int y;
+};
+bool is_valid(int x, int y) {
+    return x >= 0 && x < n && y >= 0 && y < m;
+}
+bool bfs(int low_height, int high_height) {
+    if (board[0][0] < low_height || board[0][0] > high_height) {
         return false;
-
-    if (board[n - 1][m - 1] < low || board[n - 1][m - 1] > high)
+    }
+    if (board[n - 1][m - 1] < low_height || board[n - 1][m - 1] > high_height) {
         return false;
-
-    bool visited[101][101] = {};
-    queue<pair<int, int>> q;
-
-    q.push({0, 0});
-    visited[0][0] = true;
-
+    }
+    vector<vector<bool>> visit(n, vector<bool>(m));
+    // memset(visit, false, sizeof(visit));
+    for (int i = 0; i < n; i++) {
+        fill(visit[i].begin(), visit[i].end(), false);
+    }
+    queue<pos> q;
+    pos start;
+    start.x = 0;
+    start.y = 0;
+    visit[0][0] = true;
+    q.push(start);
+    pos cur;
     while (!q.empty()) {
-        auto [x, y] = q.front();
+        cur = q.front();
         q.pop();
-
-        if (x == n - 1 && y == m - 1)
-            return true;
-
-        for (int d = 0; d < 4; d++) {
-            int nx = x + dx[d];
-            int ny = y + dy[d];
-
-            if (nx < 0 || nx >= n || ny < 0 || ny >= m)
-                continue;
-
-            if (visited[nx][ny])
-                continue;
-
-            // 허용된 높이 범위를 벗어나면 이동 불가
-            if (board[nx][ny] < low || board[nx][ny] > high)
-                continue;
-
-            visited[nx][ny] = true;
-            q.push({nx, ny});
+        int cur_x = cur.x;
+        int cur_y = cur.y;
+        if (cur_x == n - 1 && cur_y == m - 1) {
+            return true; // 가능한 최초의 경우
+        }
+        for (int i = 0; i < 4; i++) {
+            int dx = dxdy[i][0];
+            int dy = dxdy[i][1];
+            int nx = cur_x + dx;
+            int ny = cur_y + dy;
+            int nxt_height = board[nx][ny];
+            if (is_valid(nx, ny) && !visit[nx][ny] && board[nx][ny] <= high_height && board[nx][ny] >= low_height) {
+                visit[nx][ny] = true;
+                pos nxt;
+                nxt.x = nx;
+                nxt.y = ny;
+                q.push(nxt);
+            }
         }
     }
-
     return false;
 }
-
 bool is_possible(int diff) {
-    // 사용할 최소 높이 low를 하나씩 시도
-    for (int low = 1; low + diff <= 500; low++) {
-        int high = low + diff;
-
-        if (bfs(low, high))
+    // 가장 낮은 높이를 정하면 가장 높은 높이는 자동으로 정해진다(+diff)
+    // 가장 낮은 높이 1 부터 500-diff 까지 탐색
+    for (int low_height = 1; low_height <= 500 - diff; low_height++) {
+        int high_height = low_height + diff;
+        if (bfs(low_height, high_height)) {
             return true;
+        }
     }
-
-    return false;
+    return false; // 가능한 높이차 diff일때의 모든 높이에 대해서 탐색했는데도 가능한 경우가 없을경우 
 }
 
 int main() {
@@ -73,23 +79,23 @@ int main() {
         }
     }
 
-    int left = 0;
-    int right = 499;
-    int answer = 499;
-
-    while (left <= right) {
-        int mid = (left + right) / 2;
-
+    // Please write your code here.
+    // 높이차 diff 를 탐색하면서 가능한지 여부 확인
+    int start = 0; // 엣지케이스. 가능한 높이차 = 0 인 경우도 있음. (모든 격자의 높이값이 같을때)
+    int end = 500;
+    int mid;
+    int min_value = 500;
+    while (start <= end) {
+        mid = (start + end) / 2;
+        // cout << "mid:" << mid << "\n";
         if (is_possible(mid)) {
-            answer = mid;
-            right = mid - 1;
+            end = mid - 1;
+            min_value = min(min_value, mid);
         }
         else {
-            left = mid + 1;
+            start = mid + 1;
         }
     }
-
-    cout << answer;
-
+    cout << min_value;
     return 0;
 }
