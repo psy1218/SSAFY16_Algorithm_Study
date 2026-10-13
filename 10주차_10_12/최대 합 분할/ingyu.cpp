@@ -34,12 +34,17 @@ int main() {
                 next[d + cur] =
                     max(next[d + cur], dp[d] + cur);
             }
-
-            // 합이 작은 그룹에 추가
-            int nd = abs(d - cur);
-
-            next[nd] =
-                max(next[nd], dp[d] + max(0, cur - d));
+            // A, B 중 합이 작은 그룹에 추가
+            if (cur <= d){ // 큰 그룹과 작은 그룹이 관계역전되지 않음
+                int nd = d - cur; // 차이가 줄어듦
+                next[nd] =
+                    max(next[nd], dp[d]);
+            }
+            else{ // 작은 그룹이 큰 그룹이 됨
+                int nd = cur - d;
+                next[nd] =
+                    max(next[nd], dp[d] + nd);
+            }
         }
 
         dp = move(next);
