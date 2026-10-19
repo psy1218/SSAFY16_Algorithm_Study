@@ -59,7 +59,7 @@ void solve(int tc) {
         }
     }
 
-    // 선택한 옷 역추적
+    // 선택한 옷 역추적(옷 번호 찾기)
     vector<int> selected;
     int s = ans;
 
