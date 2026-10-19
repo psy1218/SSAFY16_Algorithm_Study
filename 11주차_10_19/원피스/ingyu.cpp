@@ -46,7 +46,7 @@ int bfs(pos start_pos, vector<vector<char>>& arr){
 					nxt_pos.dist = cur_pos.dist + 1;
 					q.push(nxt_pos);
 				}
-				else if(arr[nx][ny] >= 65 && arr[nx][ny] <= 70){ // 포네그리프 바다
+				else if(arr[nx][ny] >= 'A' && arr[nx][ny] <= 'F'){ // 포네그리프 바다
 					int bit_shift = arr[nx][ny] - 65;
 					if ((cur_pos.state & (1 << bit_shift)) != 0){ // 읽은 포네그리프라면
 						nxt_pos.x = nx;
@@ -57,7 +57,7 @@ int bfs(pos start_pos, vector<vector<char>>& arr){
 					}
 
 				}
-				else if(arr[nx][ny] >= 97 && arr[nx][ny] <= 102){ // 포네그리프
+				else if(arr[nx][ny] >= 'a' && arr[nx][ny] <= 'f'){ // 포네그리프
 					int bit_shift = arr[nx][ny] - 97;
 					nxt_pos.x = nx;
 					nxt_pos.y = ny;
