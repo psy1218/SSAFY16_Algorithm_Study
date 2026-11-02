@@ -44,7 +44,8 @@ string solution(long long n, vector<string> bans) {
     sort(ban_nums.begin(), ban_nums.end());
     
     for (int i = 0; i < bans_size; i++) {
-        if (ban_nums[i] <= recovered_order_idx) {
+        if (ban_nums[i] <= recovered_order_idx) { // 즉, n이 아니라, 앞에서 밀려나게 된 주문번호 기준으로 비교한다. 중간에 삭제된 주문들 때문에 뒤로 밀려나는 효과가 있기 때문.  
+            // recovered_order_idx가 뒤로 밀려남에 따라, 원래는 범위 밖에 있던 새로운 ban이 내 앞 영역으로 들어오는 상황이 발생할 수 있기 때문에 n이 아니라, 갱신되는 recovered_order_idx 와 비교한다.
             recovered_order_idx++;
         } 
         else {
