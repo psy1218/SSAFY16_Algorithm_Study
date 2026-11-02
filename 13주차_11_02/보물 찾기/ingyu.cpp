@@ -43,6 +43,7 @@ int solution(vector<int> depth, int money) {
                 // 즉, [start, end] 구간 사이의 열 k를 순회하면서, 어떤 k를 먼저 굴착하는게 '최악의 경우에도 보장되는 최소 비용'인지 탐색하는 과정
                 // choice[start][end] = [start, end] 구간에서도 어떤 열을 먼저 굴착하냐에 따라서 보물을 찾는데 비용이 달라지는데, 그 최소 비용이 드는 열
                 if (cost < dp[start][end]) {
+                    // 즉, dp 점회식 => dp[l][r] = min(dp[l][r], depth[k - 1] + max(dp[start][k - 1], dp[k + 1][end]))
                     dp[start][end] = cost;
                     choice[start][end] = k;
                 }
