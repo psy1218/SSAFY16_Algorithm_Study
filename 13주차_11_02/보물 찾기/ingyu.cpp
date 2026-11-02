@@ -37,8 +37,7 @@ int solution(vector<int> depth, int money) {
                 }
 
                 // 현재 굴착 비용 + 최악의 경우 비용
-                int cost = depth[k - 1]
-                    + (left > right ? left : right);
+                iint cost = depth[k - 1] + max(left, right);
 
                 // 가장 비용이 적게 드는 위치 저장
                 // 즉, [start, end] 구간 사이의 열 k를 순회하면서, 어떤 k를 먼저 굴착하는게 '최악의 경우에도 보장되는 최소 비용'인지 탐색하는 과정
